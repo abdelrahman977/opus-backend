@@ -27,13 +27,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.opus.backend.config.JwtTokenUtil;
+import com.opus.backend.features.JwtUserDetailsService;
 import com.opus.backend.features.MailingService;
 import com.opus.backend.model.DAOUser;
 import com.opus.backend.model.JwtRequest;
 import com.opus.backend.model.JwtResponse;
 import com.opus.backend.model.UserDTO;
 import com.opus.backend.repository.UserDao;
-import com.opus.backend.service.JwtUserDetailsService;
 
 @RestController
 @CrossOrigin

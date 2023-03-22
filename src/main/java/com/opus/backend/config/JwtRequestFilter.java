@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.opus.backend.features.JwtUserDetailsService;
 import com.opus.backend.model.DAOUser;
 import com.opus.backend.repository.UserDao;
-import com.opus.backend.service.JwtUserDetailsService;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;

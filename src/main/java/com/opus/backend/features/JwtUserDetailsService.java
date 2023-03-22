@@ -1,4 +1,4 @@
-package com.opus.backend.service;
+package com.opus.backend.features;
 
 import java.util.ArrayList;
 
