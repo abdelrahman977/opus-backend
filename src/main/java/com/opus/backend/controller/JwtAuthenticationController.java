@@ -19,6 +19,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,6 +56,9 @@ public class JwtAuthenticationController {
 	
 	@Autowired
 	private UserDetailsService jwtInMemoryUserDetailsService;
+	
+	@Autowired
+	private PasswordEncoder bcryptEncoder;
 
 	@RequestMapping(value = "/authenticate", method = RequestMethod.POST)
 	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest)
@@ -69,8 +73,10 @@ public class JwtAuthenticationController {
 			final UserDetails userDetails = jwtInMemoryUserDetailsService
 					.loadUserByUsername(authenticationRequest.getUsername());
 			DAOUser user = userDetailsService.getUser(userDetails.getUsername());
-			if(!user.getUser_type().equals(authenticationRequest.getUser_type())) {
-				return new ResponseEntity<String>("{\"status\": \"Invalid credentials or wrong account type\"}", headers , HttpStatus.UNAUTHORIZED); 
+			if(!user.getUser_type().equals("SAAS")) { // SAAS type can login without choosing his or her type
+				if(!user.getUser_type().equals(authenticationRequest.getUser_type())) {
+					return new ResponseEntity<String>("{\"status\": \"Invalid credentials or wrong account type\"}", headers , HttpStatus.UNAUTHORIZED); 
+				}
 			}
 			if(!user.getVerification_status().equals("Verified")) {
 				if(user.getUser_type().equals("Free")) { // re-send verification email
@@ -235,5 +241,28 @@ public class JwtAuthenticationController {
 													   												,user.getCompany_name()
 													   												,subscription_from_date
 													   												,subscription_expiration_date), headers , HttpStatus.OK);
+	}
+	@RequestMapping(value = "/update_user_details", method = RequestMethod.POST)
+	public ResponseEntity<?> update_user_details(
+												@RequestParam("full_name") String full_name										  		
+										  		,@RequestParam("password") String password
+										  		,@RequestParam("email") String email
+										  		,@RequestParam("company_name") String company_name) throws Exception {
+		HttpHeaders headers = new HttpHeaders();
+	    headers.setContentType(MediaType.APPLICATION_JSON);
+	    DAOUser user = userDao.findByEmail(email);
+	    if(password != null) {
+	    	user.setPassword(bcryptEncoder.encode(password));
+	    }
+	    if(company_name != null) {
+	    	user.setCompany_name(company_name);
+	    }
+	    if(full_name != null) {
+	    	user.setFull_name(full_name);
+	    }
+	    user.setVerification_status("Verified");
+	    user.setUser_type("SAAS");
+		userDetailsService.updateUser(user);
+		return new ResponseEntity<String>(String.format("{\"status\": \"%s\"}","User details are updated , please login"), headers , HttpStatus.OK);
 	}
 }

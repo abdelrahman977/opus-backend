@@ -6,11 +6,15 @@ import java.util.Date;
 
 import javax.persistence.*;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Table(name = "users")
 public class DAOUser {
+	
+
 
 	@Id
 	private String username;
